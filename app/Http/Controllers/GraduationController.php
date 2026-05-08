@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Setting;
+use App\Models\Student;
+use Illuminate\Http\Request;
+use App\Models\GraduationPeriod;
+
+class GraduationController extends Controller
+{
+    public function index()
+    {
+        $activePeriod = GraduationPeriod::where('is_active', true)->first();
+        return view('graduation.index', compact('activePeriod'));
+    }
+
+    public function check(Request $request)
+    {
+        $request->validate([
+            'nis' => 'required|string'
+        ]);
+
+        $student = Student::with(['schoolClass', 'grades'])
+            ->where('nis', $request->nis)
+            ->first();
+
+        if (!$student) {
+            return back()->with('error', 'NIS tidak ditemukan');
+        }
+
+        $nisn             = $student->nis;
+        $nama_siswa       = $student->nama;
+        $status_kelulusan = $student->status;
+
+        clearstatcache();
+
+        try {
+            $certificateService = app(\App\Services\CertificateService::class);
+            $gambar = $certificateService->generate($nama_siswa, $nisn, $status_kelulusan);
+
+            $outputPath = public_path("assets/img/sertifikat/{$nisn}.jpg");
+            imagejpeg($gambar, $outputPath);
+            imagedestroy($gambar);
+
+            $sertifikatPath = "assets/img/sertifikat/{$nisn}.jpg";
+
+            return view('graduation.result', compact('student', 'sertifikatPath'));
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+}
