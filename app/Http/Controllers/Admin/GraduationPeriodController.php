@@ -67,7 +67,9 @@ class GraduationPeriodController extends Controller
 
         if ($request->has('is_active')) {
             $validated['is_active'] = true;
-            GraduationPeriod::where('is_active', true)->update(['is_active' => false]);
+            GraduationPeriod::where('is_active', true)
+                ->where('id', '!=', $id)
+                ->update(['is_active' => false]);
         }
 
         $period->update($validated);

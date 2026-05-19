@@ -28,7 +28,7 @@
                         <tr>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tahun Ajaran</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Semester</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal Pengumuman</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Waktu Pengumuman</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
                             <th class="text-secondary opacity-7"></th>
                         </tr>
@@ -47,7 +47,10 @@
                                 <p class="text-xs font-weight-bold mb-0">{{ $period->semester }}</p>
                             </td>
                             <td>
-                                <p class="text-xs font-weight-bold mb-0">{{ $period->tanggal_pengumuman->format('d F Y') }}</p>
+                                <p class="text-xs font-weight-bold mb-0">
+                                    {{ $period->tanggal_pengumuman->format('d F Y') }} 
+                                    {{ $period->jam_pengumuman ? \Carbon\Carbon::parse($period->jam_pengumuman)->format('H:i') : '00:00' }} WIB
+                                </p>
                             </td>
                             <td>
                                 <span class="badge badge-sm bg-gradient-{{ $period->is_active ? 'success' : 'secondary' }}">
