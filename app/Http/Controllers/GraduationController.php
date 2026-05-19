@@ -29,6 +29,14 @@ class GraduationController extends Controller
             return back()->with('error', 'NIS tidak ditemukan');
         }
 
+        $activePeriod = GraduationPeriod::where('is_active', true)->first();
+        if ($activePeriod) {
+            $pengumumanDateTime = \Carbon\Carbon::parse($activePeriod->tanggal_pengumuman->format('Y-m-d') . ' ' . ($activePeriod->jam_pengumuman ?? '00:00:00'));
+            if (now()->lt($pengumumanDateTime)) {
+                return back()->with('error', 'Maaf, Pengumuman Kelulusan akan dibuka pada ' . $pengumumanDateTime->format('d-m-Y H:i'));
+            }
+        }
+
         $nisn             = $student->nis;
         $nama_siswa       = $student->nama;
         $status_kelulusan = $student->status;

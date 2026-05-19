@@ -19,7 +19,7 @@
             <span class="mask bg-img opacity-9"></span>
             <div class="container">
                 <div class="d-flex justify-content-center mt-7 mb-5">
-                    <x-application-logo></x-application-logo>
+                    <x-application-logo class="d-none d-md-flex"></x-application-logo>
                 </div>
                 {{ $slot }}
                 @include('partials.footer')

@@ -10,6 +10,7 @@ class GraduationPeriod extends Model
         'tahun_ajaran',
         'semester',
         'tanggal_pengumuman',
+        'jam_pengumuman',
         'is_active',
         'keterangan'
     ];

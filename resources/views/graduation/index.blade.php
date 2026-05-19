@@ -13,7 +13,15 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        @if($activePeriod && now()->gte($activePeriod->tanggal_pengumuman))
+                        @php
+                            $isOpened = false;
+                            $pengumumanDateTime = null;
+                            if ($activePeriod) {
+                                $pengumumanDateTime = \Carbon\Carbon::parse($activePeriod->tanggal_pengumuman->format('Y-m-d') . ' ' . ($activePeriod->jam_pengumuman ?? '00:00:00'));
+                                $isOpened = now()->gte($pengumumanDateTime);
+                            }
+                        @endphp
+                        @if($activePeriod && $isOpened)
                             <form role="form" class="text-start" method="POST" action="{{ route('graduation.check') }}">
                                 @csrf
                                 <div class="header">
@@ -38,7 +46,7 @@
                             <div class="alert alert-info text-white">
                                 <p class="text-center mb-0">
                                     Pengumuman kelulusan akan dibuka pada:<br>
-                                    <strong>{{ $activePeriod->tanggal_pengumuman->format('d F Y, H:i') }} WIB</strong>
+                                    <strong>{{ $pengumumanDateTime->translatedFormat('d F Y, H:i') }} WIB</strong>
                                 </p>
                             </div>
                         @else

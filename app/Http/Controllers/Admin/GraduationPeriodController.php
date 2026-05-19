@@ -25,6 +25,7 @@ class GraduationPeriodController extends Controller
             'tahun_ajaran' => 'required',
             'semester' => 'required',
             'tanggal_pengumuman' => 'required|date',
+            'jam_pengumuman' => 'required',
             'keterangan' => 'nullable|string'
         ]);
 
@@ -58,6 +59,7 @@ class GraduationPeriodController extends Controller
             'tahun_ajaran' => 'required',
             'semester' => 'required',
             'tanggal_pengumuman' => 'required|date',
+            'jam_pengumuman' => 'required',
             'keterangan' => 'nullable|string'
         ]);
 

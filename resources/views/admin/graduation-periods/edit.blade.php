@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="input-group input-group-static mb-4">
                             <label class="ms-0">Tanggal Pengumuman</label>
                             <input type="date" name="tanggal_pengumuman" class="form-control @error('tanggal_pengumuman') is-invalid @enderror" value="{{ old('tanggal_pengumuman', $period->tanggal_pengumuman->format('Y-m-d')) }}">
@@ -56,8 +56,17 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-check form-switch mb-4">
+                    <div class="col-md-4">
+                        <div class="input-group input-group-static mb-4">
+                            <label class="ms-0">Jam Pengumuman</label>
+                            <input type="time" name="jam_pengumuman" class="form-control @error('jam_pengumuman') is-invalid @enderror" value="{{ old('jam_pengumuman', $period->jam_pengumuman ? \Carbon\Carbon::parse($period->jam_pengumuman)->format('H:i') : '') }}">
+                            @error('jam_pengumuman')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch mb-4 mt-4">
                             <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {{ $period->is_active ? 'checked' : '' }}>
                             <label class="form-check-label" for="is_active">Aktifkan Periode Ini</label>
                             @error('is_active')
