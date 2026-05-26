@@ -20,6 +20,7 @@ class StudentSeeder extends Seeder
             // Create 20 students per class
             for ($i = 1; $i <= 20; $i++) {
                 \App\Models\Student::create([
+                    'school_id' => 1,
                     'nis' => '2025' . str_pad($class->id, 2, '0', STR_PAD_LEFT) . str_pad($i, 3, '0', STR_PAD_LEFT),
                     'nama' => $faker->name(),
                     'school_class_id' => $class->id,

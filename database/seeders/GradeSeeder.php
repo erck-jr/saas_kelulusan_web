@@ -34,6 +34,7 @@ class GradeSeeder extends Seeder
                 $nilaiAkhir = ($nilaiSekolah + $nilaiUjian) / 2;
 
                 \App\Models\Grade::create([
+                    'school_id' => 1,
                     'student_id' => $student->id,
                     'mata_pelajaran' => $mapel,
                     'nilai_akhir' => $nilaiAkhir,

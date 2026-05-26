@@ -14,13 +14,17 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            SettingSeeder::class,
-            AdminUserSeeder::class,
-            UserSeeder::class,
-            GraduationPeriodSeeder::class,
-            SchoolClassSeeder::class,
-            StudentSeeder::class,
-            GradeSeeder::class,
+            AdminUserSeeder::class, // Hanya Superadmin
+            
+            // Dummy Data (Komentari untuk Production/Hosting)
+            // SchoolSeeder::class,
+            // SettingSeeder::class,
+            // CertificateSettingSeeder::class,
+            // UserSeeder::class, // Admin dan Petugas Dummy
+            // GraduationPeriodSeeder::class,
+            // SchoolClassSeeder::class,
+            // StudentSeeder::class,
+            // GradeSeeder::class,
         ]);
     }
 }

@@ -105,6 +105,7 @@ class SettingSeeder extends Seeder
 
         foreach ($settings as $setting) {
             DB::table('settings')->insert([
+                'school_id' => 1,
                 'key' => $setting['key'],
                 'value' => $setting['value'],
                 'type' => $setting['type'],

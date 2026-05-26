@@ -92,4 +92,24 @@ class AnnouncementController extends Controller
             ->route('admin.announcements.index')
             ->with('success', 'Pengumuman berhasil dipublikasikan.');
     }
+
+    /**
+     * Public-facing announcement list (tenant-scoped via BelongsToTenant trait).
+     */
+    public function publicIndex()
+    {
+        $announcements = Announcement::where('is_published', true)
+            ->latest()
+            ->paginate(10);
+
+        return view('announcements.index', compact('announcements'));
+    }
+
+    /**
+     * Public-facing announcement detail (tenant-scoped via BelongsToTenant trait).
+     */
+    public function publicShow(Announcement $announcement)
+    {
+        return view('announcements.show', compact('announcement'));
+    }
 }

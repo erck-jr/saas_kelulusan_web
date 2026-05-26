@@ -1,64 +1,58 @@
 @section('title','Beranda')
 <x-guest-layout>
-    <div class="container-fluid py-4">
-        <div class="row">
-            <div class="col-lg-6 col-md-8 col-12 mx-auto">
-                <div class="card z-index-0 fadeIn3 fadeInBottom">
-                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                        <div class="bg-gradient-primary shadow-primary border-radius-lg py-3 pe-1">
-                            <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Pengumuman Kelulusan</h4>
-                            @if($activePeriod)
-                                <p class="text-white text-center mb-0">Tahun Ajaran {{ $activePeriod->tahun_ajaran }}</p>
-                            @endif
-                        </div>
+    <div class="w-full mx-auto px-4 py-12">
+        <div class="glass-panel rounded-2xl shadow-xl p-6">
+            <div class="text-center mb-4 flex flex-col items-center">
+                @if(settings('school_logo'))
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-white p-2 flex items-center justify-center shadow-lg mb-4 overflow-hidden">
+                        <img src="{{ asset('storage/' . settings('school_logo')) }}" alt="Logo {{ settings('school_name') }}" class="w-full h-full object-contain" />
                     </div>
-                    <div class="card-body">
-                        @php
-                            $isOpened = false;
-                            $pengumumanDateTime = null;
-                            if ($activePeriod) {
-                                $pengumumanDateTime = \Carbon\Carbon::parse($activePeriod->tanggal_pengumuman->format('Y-m-d') . ' ' . ($activePeriod->jam_pengumuman ?? '00:00:00'));
-                                $isOpened = now()->gte($pengumumanDateTime);
-                            }
-                        @endphp
-                        @if($activePeriod && $isOpened)
-                            <form role="form" class="text-start" method="POST" action="{{ route('graduation.check') }}">
-                                @csrf
-                                <div class="header">
-                                    <label class="form-label">Masukan NISN Siswa </label>
-                                </div>
-                                <div class="input-group input-group-outline my-3">
-                                    <label class="form-label">Nomor Induk Siswa Nasional (NISN)</label>
-                                    <input type="text" name="nis" class="form-control" required>
-                                </div>
-
-                                @error('nis')
-                                    <div class="text-danger text-xs">{{ $message }}</div>
-                                @enderror
-
-
-
-                                <div class="text-center">
-                                    <button type="submit" class="btn bg-gradient-primary w-100 my-4 mb-2">Cek Kelulusan</button>
-                                </div>
-                            </form>
-                        @elseif($activePeriod)
-                            <div class="alert alert-info text-white">
-                                <p class="text-center mb-0">
-                                    Pengumuman kelulusan akan dibuka pada:<br>
-                                    <strong>{{ $pengumumanDateTime->translatedFormat('d F Y, H:i') }} WIB</strong>
-                                </p>
-                            </div>
-                        @else
-                            <div class="alert alert-warning text-white">
-                                <p class="text-center mb-0">
-                                    Tidak ada periode kelulusan yang aktif saat ini.
-                                </p>
-                            </div>
-                        @endif
+                @else
+                    <div class="mx-auto w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg mb-4">
+                        <svg class="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                        </svg>
                     </div>
-                </div>
+                @endif
+                <h1 class="font-display font-bold text-2xl text-white">Pengumuman Kelulusan</h1>
+                <h2 class="font-display font-bold text-lg text-white">{{ settings('school_name') }}</h2>
+                @if($activePeriod)
+                    <p class="text-xs text-slate-400 mt-1">Tahun Ajaran {{ $activePeriod->tahun_ajaran }}</p>
+                @endif
             </div>
+
+            @php
+                $isOpened = false;
+                $pengumumanDateTime = null;
+                if ($activePeriod) {
+                    $pengumumanDateTime = \Carbon\Carbon::parse($activePeriod->tanggal_pengumuman->format('Y-m-d') . ' ' . ($activePeriod->jam_pengumuman ?? '00:00:00'));
+                    $isOpened = now()->gte($pengumumanDateTime);
+                }
+            @endphp
+
+            @if($activePeriod && $isOpened)
+                <form method="POST" action="{{ route('school.check', ['school_slug' => request()->route('school_slug')]) }}" class="space-y-4">
+                    @csrf
+                    <div class="space-y-1.5 text-left">
+                        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Nomor Induk Siswa Nasional (NISN)</label>
+                        <input type="text" name="nis" required class="w-full rounded-2xl bg-slate-950/50 border border-white/10 px-4 py-3 text-slate-200 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition" />
+                        @error('nis')<p class="text-xs text-rose-400">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm font-semibold shadow-md">Cek Kelulusan</button>
+                    </div>
+                </form>
+            @elseif($activePeriod)
+                <div class="rounded-2xl bg-slate-950/60 border border-white/10 p-4 text-center">
+                    <p class="text-sm text-slate-400">Pengumuman kelulusan akan dibuka pada:</p>
+                    <p class="text-sm text-white font-semibold mt-2">{{ $pengumumanDateTime->translatedFormat('d F Y, H:i') }} WIB</p>
+                </div>
+            @else
+                <div class="rounded-2xl bg-slate-950/60 border border-white/10 p-4 text-center">
+                    <p class="text-sm text-slate-400">Tidak ada periode kelulusan yang aktif saat ini.</p>
+                </div>
+            @endif
         </div>
     </div>
 </x-guest-layout>

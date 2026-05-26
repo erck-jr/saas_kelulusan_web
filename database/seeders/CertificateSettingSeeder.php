@@ -12,10 +12,14 @@ class CertificateSettingSeeder extends Seeder
      */
     public function run(): void
     {
-        $exists = DB::table('settings')->where('key', 'template-sertifikat')->exists();
+        $exists = DB::table('settings')
+            ->where('school_id', 1)
+            ->where('key', 'template-sertifikat')
+            ->exists();
         
         if (!$exists) {
             DB::table('settings')->insert([
+                'school_id' => 1,
                 'key' => 'template-sertifikat',
                 'value' => null,
                 'type' => 'template',

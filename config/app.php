@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://kelulusan.smpn9ambon.sch.id'),
+    'url' => env('APP_URL', 'http://kelulusan.test'),
 
     /*
     |--------------------------------------------------------------------------

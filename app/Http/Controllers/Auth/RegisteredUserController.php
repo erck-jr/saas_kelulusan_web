@@ -39,12 +39,12 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'status' => 'inactive',
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('login', ['school_slug' => request()->route('school_slug')]))
+            ->with('sweetalert', 'Pendaftaran berhasil. Akun Anda belum aktif, hubungi SuperAdmin aplikasi untuk aktivasi akun.');
     }
 }

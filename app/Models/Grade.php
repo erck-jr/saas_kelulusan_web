@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToTenant;
 
 class Grade extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
+        'school_id',
         'student_id',
         'mata_pelajaran',
         'nilai_akhir',

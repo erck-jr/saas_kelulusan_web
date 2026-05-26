@@ -26,7 +26,29 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        if (Auth::user()->status === 'inactive') {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->back()->with('sweetalert_error', 'Akun belum aktif hubungi SuperAdmin aplikasi untuk aktivasi akun.');
+        }
+
         $request->session()->regenerate();
+
+        $user = $request->user();
+
+        if ($user->role === 'superadmin') {
+            return redirect()->route('superadmin.global.dashboard');
+        }
+
+        if (in_array($user->role, ['admin', 'operator'])) {
+            $school = $user->school;
+            if ($school) {
+                $appDomain = parse_url(config('app.url'), PHP_URL_HOST);
+                $protocol = parse_url(config('app.url'), PHP_URL_SCHEME) ?? 'http';
+                return redirect()->away($protocol . '://' . $school->slug . '.' . $appDomain . '/admin');
+            }
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

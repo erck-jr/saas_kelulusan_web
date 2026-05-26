@@ -13,6 +13,7 @@ class GraduationPeriodSeeder extends Seeder
     public function run(): void
     {
         \App\Models\GraduationPeriod::create([
+            'school_id' => 1,
             'tahun_ajaran' => '2024/2025',
             'semester' => 'Genap',
             'tanggal_pengumuman' => '2025-05-15',

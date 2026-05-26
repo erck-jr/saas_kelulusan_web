@@ -14,6 +14,7 @@ class UserSeeder extends Seeder
     {
         // Create admin user
         \App\Models\User::create([
+            'school_id' => 1,
             'name' => 'Administrator',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
@@ -22,6 +23,7 @@ class UserSeeder extends Seeder
 
         // Create petugas user
         \App\Models\User::create([
+            'school_id' => 1,
             'name' => 'Petugas',
             'email' => 'petugas@example.com',
             'password' => bcrypt('password'),

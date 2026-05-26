@@ -23,6 +23,7 @@ class SchoolClassSeeder extends Seeder
 
         foreach ($classes as $class) {
             \App\Models\SchoolClass::create([
+                'school_id' => 1,
                 'nama_kelas' => $class['nama_kelas'],
                 'jurusan' => $class['jurusan'],
                 'tingkat' => $class['tingkat'],

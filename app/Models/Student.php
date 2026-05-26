@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
+        'school_id',
         'nis',
         'nama',
         'school_class_id',
@@ -19,6 +23,11 @@ class Student extends Model
     public function schoolClass()
     {
         return $this->belongsTo(SchoolClass::class);
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(School::class);
     }
 
     public function graduationPeriod()
