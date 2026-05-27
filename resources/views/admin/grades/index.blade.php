@@ -49,9 +49,9 @@
                             <tr class="hover:bg-white/[0.01] transition-colors">
                                 <td class="py-4 px-6 font-medium text-slate-200">{{ $grade->student->nama }}<span class="block text-xs text-slate-500">{{ $grade->student->nis }}</span></td>
                                 <td class="py-4 px-6 text-slate-400">{{ $grade->mata_pelajaran }}</td>
-                                <td class="py-4 px-6 text-slate-400">{{ number_format($grade->nilai_ujian, 2) }}</td>
-                                <td class="py-4 px-6 text-slate-400">{{ number_format($grade->nilai_sekolah, 2) }}</td>
-                                <td class="py-4 px-6 text-slate-400">{{ number_format($grade->nilai_akhir, 2) }}</td>
+                                <td class="py-4 px-6 text-slate-400">{{ $grade->nilai_ujian !== null ? number_format($grade->nilai_ujian, 2, '.', '') : '-' }}</td>
+                                <td class="py-4 px-6 text-slate-400">{{ $grade->nilai_sekolah !== null ? number_format($grade->nilai_sekolah, 2, '.', '') : '-' }}</td>
+                                <td class="py-4 px-6 text-slate-400">{{ $grade->nilai_akhir !== null ? number_format($grade->nilai_akhir, 2, '.', '') : '-' }}</td>
                                 <td class="py-4 px-6">
                                     <div class="flex items-center justify-center gap-2">
                                         <a href="{{ route('admin.grades.show', $grade) }}" class="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white border border-white/5 hover:border-white/10 transition-colors" title="Detail Nilai">
@@ -86,7 +86,7 @@
 
             @if($grades->hasPages())
                 <div class="p-4 border-t border-white/5 bg-slate-900/20 custom-pagination">
-                    {{ $grades->links('pagination::bootstrap-5') }}
+                    {{ $grades->links('pagination::tailwind') }}
                 </div>
             @endif
         </div>
@@ -127,6 +127,17 @@
                 
                 <form action="{{ route('admin.grades.import') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
                     @csrf
+
+                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
+                        <div class="flex gap-3">
+                            <span class="material-icons-round text-amber-500 text-xl shrink-0">info</span>
+                            <div class="text-xs text-amber-200/90">
+                                <strong class="text-amber-400 block mb-1">Penting: Metode Input Lanjutan</strong>
+                                Mohon pisahkan data nilai <b>per mata pelajaran</b> pada file Excel yang berbeda untuk meminimalkan error. Sistem menggunakan metode "all or nothing", jika ada 1 baris yang salah maka seluruh proses import pada file tersebut akan dibatalkan.
+                            </div>
+                        </div>
+                    </div>
+
                     <a href="{{ route('admin.grades.template') }}" class="inline-flex items-center justify-center gap-2 w-full rounded-xl bg-slate-800 border border-white/10 px-4 py-3 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition">
                         <span class="material-icons-round text-sm">download</span>
                         <span>Unduh Template Excel</span>

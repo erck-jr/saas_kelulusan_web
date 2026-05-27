@@ -157,7 +157,7 @@ class GradeController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls'
+            'file' => 'required|mimes:xlsx,xls,csv'
         ]);
 
         $file = $request->file('file');
@@ -166,38 +166,91 @@ class GradeController extends Controller
         $rows = $sheet->toArray(null, true, true, true);
 
         $errors = [];
-        $grades = [];
+        $updates = [];
+        $inserts = [];
+        $affectedStudentIds = [];
+        $processedPairs = [];
 
         foreach ($rows as $index => $row) {
             if ($index == 1) continue; // skip header
 
-            $nis            = trim($row['A']);
-            $mataPelajaran  = trim($row['B']);
-            $nilaiUjian     = $row['C'];
-            $nilaiSekolah   = $row['D'];
-            $nilaiAkhir     = $row['E'];
-            $catatan        = $row['F'] ?? null;
+            $nis            = trim($row['A'] ?? '');
+            $mataPelajaran  = trim($row['B'] ?? '');
+            $nilaiUjian     = isset($row['C']) ? trim($row['C']) : null;
+            if ($nilaiUjian !== null) $nilaiUjian = str_replace(',', '.', $nilaiUjian);
+            
+            $nilaiSekolah   = isset($row['D']) ? trim($row['D']) : null;
+            if ($nilaiSekolah !== null) $nilaiSekolah = str_replace(',', '.', $nilaiSekolah);
+            
+            $nilaiAkhir     = isset($row['E']) ? trim($row['E']) : null;
+            if ($nilaiAkhir !== null) $nilaiAkhir = str_replace(',', '.', $nilaiAkhir);
+            
+            $catatan        = isset($row['F']) ? trim($row['F']) : null;
 
             // skip baris kosong
             if (empty($nis) && empty($mataPelajaran)) continue;
 
+            // Validasi input
+            if ($nilaiUjian !== null && $nilaiUjian !== '' && !is_numeric($nilaiUjian)) {
+                $errors[] = "Baris {$index} → Nilai Ujian harus berupa angka.";
+            }
+            if ($nilaiSekolah !== null && $nilaiSekolah !== '' && !is_numeric($nilaiSekolah)) {
+                $errors[] = "Baris {$index} → Nilai Sekolah harus berupa angka.";
+            }
+            if ($nilaiAkhir === null || $nilaiAkhir === '' || !is_numeric($nilaiAkhir)) {
+                $errors[] = "Baris {$index} → Nilai Akhir wajib diisi dan harus berupa angka.";
+            }
+            if (empty($mataPelajaran)) {
+                $errors[] = "Baris {$index} → Mata Pelajaran wajib diisi.";
+            }
+
             // validasi nis
             $student = Student::where('nis', $nis)->first();
             if (!$student) {
-                $errors[] = "Baris {$index} → NIS <b>{$nis}</b> tidak ditemukan";
+                $errors[] = "Baris {$index} → NIS <b>{$nis}</b> tidak ditemukan.";
                 continue;
             }
+            
+            // Cek duplikasi di dalam file excel yang sama
+            $pairKey = $student->id . '_' . strtolower($mataPelajaran);
+            if (in_array($pairKey, $processedPairs)) {
+                $errors[] = "Baris {$index} → Duplikasi mata pelajaran <b>{$mataPelajaran}</b> untuk NIS <b>{$nis}</b> di dalam file Excel.";
+            } else {
+                $processedPairs[] = $pairKey;
+            }
 
-            $grades[] = [
-                'student_id'     => $student->id,
-                'mata_pelajaran' => $mataPelajaran,
-                'nilai_ujian'    => $nilaiUjian,
-                'nilai_sekolah'  => $nilaiSekolah,
-                'nilai_akhir'    => $nilaiAkhir,
-                'catatan'        => $catatan,
-                'created_at'     => now(),
-                'updated_at'     => now(),
-            ];
+            if (!in_array($student->id, $affectedStudentIds)) {
+                $affectedStudentIds[] = $student->id;
+            }
+
+            // Cek apakah mapel sudah ada di DB (case-insensitive)
+            $existingGrade = Grade::where('student_id', $student->id)
+                                  ->whereRaw('LOWER(mata_pelajaran) = ?', [strtolower($mataPelajaran)])
+                                  ->first();
+
+            if ($existingGrade) {
+                $updates[] = [
+                    'id'             => $existingGrade->id,
+                    'student_id'     => $student->id,
+                    'mata_pelajaran' => $mataPelajaran, // Simpan dengan case yang baru dari excel
+                    'nilai_ujian'    => $nilaiUjian !== '' ? $nilaiUjian : null,
+                    'nilai_sekolah'  => $nilaiSekolah !== '' ? $nilaiSekolah : null,
+                    'nilai_akhir'    => $nilaiAkhir,
+                    'catatan'        => $catatan !== '' ? $catatan : null,
+                ];
+            } else {
+                $inserts[] = [
+                    'school_id'      => app()->bound('current_school') ? app('current_school')->id : $student->school_id,
+                    'student_id'     => $student->id,
+                    'mata_pelajaran' => $mataPelajaran,
+                    'nilai_ujian'    => $nilaiUjian !== '' ? $nilaiUjian : null,
+                    'nilai_sekolah'  => $nilaiSekolah !== '' ? $nilaiSekolah : null,
+                    'nilai_akhir'    => $nilaiAkhir,
+                    'catatan'        => $catatan !== '' ? $catatan : null,
+                    'created_at'     => now(),
+                    'updated_at'     => now(),
+                ];
+            }
         }
 
         // kalau ada error, batalkan semua
@@ -206,8 +259,27 @@ class GradeController extends Controller
         }
 
         // kalau aman, simpan dalam transaction
-        DB::transaction(function () use ($grades) {
-            Grade::insert($grades);
+        DB::transaction(function () use ($updates, $inserts, $affectedStudentIds) {
+            if (!empty($inserts)) {
+                Grade::insert($inserts);
+            }
+            
+            if (!empty($updates)) {
+                foreach ($updates as $updateData) {
+                    $id = $updateData['id'];
+                    unset($updateData['id']);
+                    Grade::where('id', $id)->update($updateData);
+                }
+            }
+            
+            // Hitung ulang nilai rata-rata
+            foreach ($affectedStudentIds as $studentId) {
+                $student = Student::find($studentId);
+                if ($student) {
+                    $avgGrade = $student->grades()->avg('nilai_akhir');
+                    $student->update(['nilai_rata_rata' => $avgGrade]);
+                }
+            }
         });
 
         return redirect()->back()->with('success', 'Import nilai berhasil disimpan.');

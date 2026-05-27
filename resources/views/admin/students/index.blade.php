@@ -121,7 +121,7 @@
 
             @if($students->hasPages())
                 <div class="p-4 border-t border-white/5 bg-slate-900/20 custom-pagination">
-                    {{ $students->links() }}
+                    {{ $students->links('pagination::tailwind') }}
                 </div>
             @endif
         </div>
