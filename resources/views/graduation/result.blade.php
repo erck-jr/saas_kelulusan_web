@@ -48,7 +48,7 @@
                         </div>
                         <div class="space-y-1">
                             <dt class="text-slate-500 dark:text-slate-400">Kelas</dt>
-                            <dd class="text-slate-900 dark:text-white font-medium">{{ optional($student->schoolClass)->name ?? 'Tidak tersedia' }}</dd>
+                            <dd class="text-slate-900 dark:text-white font-medium">{{ optional($student->schoolClass)->nama_kelas ?? 'Tidak tersedia' }}</dd>
                         </div>
                         <div class="space-y-1">
                             <dt class="text-slate-500 dark:text-slate-400">Sekolah</dt>

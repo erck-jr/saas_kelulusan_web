@@ -1,5 +1,7 @@
 @import 'tailwindcss/index.css';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-school-primary: var(--school-primary, #6366f1);
   --color-school-accent: var(--school-accent, #8b5cf6);

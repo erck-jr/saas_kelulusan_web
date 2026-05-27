@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth {{ settings('theme_bg_mode', 'dark') === 'dark' ? 'dark' : '' }}">
 <head>
     @include('partials.head')
     @php
