@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.identify' => \App\Http\Middleware\IdentifyTenant::class,
             'tenant.admin' => \App\Http\Middleware\IdentifyAdminTenant::class,
             'superadmin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+            'deny.superadmin' => \App\Http\Middleware\DenySuperAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
