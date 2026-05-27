@@ -30,17 +30,30 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
+        $request->validate([
+            'theme_primary_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6})$/'],
+            'theme_accent_color'  => ['nullable', 'regex:/^#([A-Fa-f0-9]{6})$/'],
+            'theme_bg_mode'       => ['nullable', 'in:dark,light'],
+            'theme_font_family'   => ['nullable', 'string', 'max:100'],
+            'theme_hero_bg'       => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+        ]);
+
         foreach ($request->except('_token', '_method') as $key => $value) {
             $setting = Setting::where('key', $key)->first();
 
-           if (!$setting) continue;
+            if (!$setting) continue;
            
-           if (($setting->type === 'image' || $setting->type === 'template') && $request->hasFile($key)) {
-                if ($setting->value) {
-                    Storage::disk('public')->delete($setting->value);
+            if ($setting->type === 'image' || $setting->type === 'template') {
+                if ($request->hasFile($key)) {
+                    if ($setting->value) {
+                        Storage::disk('public')->delete($setting->value);
+                    }
+                    // simpan file di folder "settings" di disk public
+                    $value = $request->file($key)->store('settings', 'public');
+                } else {
+                    // Tetap pertahankan file yang lama jika tidak mengunggah file baru
+                    continue;
                 }
-                // simpan file di folder "settings" di disk public
-                $value = $request->file($key)->store('settings', 'public');
             }
 
             $setting->update([
